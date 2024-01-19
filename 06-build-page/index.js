@@ -12,6 +12,8 @@ fs.rm(dstFolderPath, { recursive: true, force: true }, (err) => {
   fs.mkdir(dstFolderPath, { recursive: true }, (err) => {
     if (err) throw err;
     else {
+      console.log(`+ Folder ${dstFolderPath} has been created`);
+
       copyFolderFromAssets('fonts');
       copyFolderFromAssets('img');
       copyFolderFromAssets('svg');
