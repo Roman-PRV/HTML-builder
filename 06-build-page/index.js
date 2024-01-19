@@ -2,27 +2,58 @@ const fs = require('fs');
 const fsp = require('fs').promises;
 const path = require('path');
 
-// створити папку призначення для проекту
 const dstFolderPath = path.join(__dirname, 'project-dist');
-fs.access(dstFolderPath, fs.constants.F_OK, (err) => {
+
+fs.rm(dstFolderPath, { recursive: true, force: true }, (err) => {
   if (err) {
-    fs.mkdir(dstFolderPath, { recursive: true }, (err) => {
-      if (err) throw err;
-    });
+    throw err;
   }
+  console.log('Project is purged');
+  fs.mkdir(dstFolderPath, { recursive: true }, (err) => {
+    if (err) throw err;
+    else {
+      copyFolderFromAssets('fonts');
+      copyFolderFromAssets('img');
+      copyFolderFromAssets('svg');
+
+      const templatePath = path.join(__dirname, 'template.html');
+      const indexPath = path.join(dstFolderPath, 'index.html');
+      createIndex(templatePath, indexPath);
+
+      const styleFolder = path.join(__dirname, 'styles');
+      const styleDstFile = path.join(dstFolderPath, 'style.css');
+      mergeStyles(styleFolder, styleDstFile);
+    }
+  });
 });
 
-// ====================================COPY ASSETS========================================
-const sourceDir = path.join(__dirname, 'assets');
-const destDir = path.join(dstFolderPath, 'assets');
+// ====================================COPY ASSETS FOLDER WITH CONTENT========================================
 
-fs.cp(sourceDir, destDir, { recursive: true }, (err) => {
-  if (err) {
-    console.error(err);
-  } else {
-    console.log('assets copied');
-  }
-});
+function copyFolderFromAssets(folder) {
+  const sourceDir = path.join(__dirname, 'assets', folder);
+  const destDir = path.join(__dirname, 'project-dist', 'assets', folder);
+  fs.mkdir(destDir, { recursive: true }, (err) => {
+    if (err) throw err;
+    else {
+      fs.readdir(sourceDir, (err, files) => {
+        if (err) console.log(err);
+        else {
+          files.forEach((file) => {
+            fs.copyFile(
+              path.join(sourceDir, file),
+              path.join(destDir, file),
+              (err) => {
+                if (err) {
+                  console.log(err);
+                } else console.log(`+ ${file} has been copied to ${destDir}`);
+              },
+            );
+          });
+        }
+      });
+    }
+  });
+}
 
 // ====================================MERGE STYLES========================================
 
@@ -41,17 +72,19 @@ function mergeStyles(styleFolder, styleDstFile) {
     if (err) {
       console.log(err);
     } else {
-      fullPathFiles = files
+      const fullPathFiles = files
         .filter((file) => path.extname(file.toLowerCase()) === '.css')
         .map((file) => path.join(styleFolder, file));
       mergeStylesByOrden(fullPathFiles, styleDstFile)
-        .then(() => console.log('CSS styles merged'))
+        .then(() =>
+          console.log(`+ CSS style has been merged with files: ${files}`),
+        )
         .catch(console.error);
     }
   });
 }
 
-// ====================================INDEX.HTML========================================
+// ====================================CREATE INDEX.HTML FROM TEMPLATE========================================
 
 // знайти усі теги в шаблоні
 function findTags(template) {
@@ -82,16 +115,10 @@ function createIndex(templatePath, indexPath) {
     } else {
       const tags = findTags(template);
       replaceTagsByOrden(tags, template, indexPath)
-        .then(() => console.log('index.html merged'))
+        .then(() =>
+          console.log(`+ index.html has been created with components: ${tags}`),
+        )
         .catch(console.error);
     }
   });
 }
-
-const templatePath = path.join(__dirname, 'template.html');
-const indexPath = path.join(__dirname, 'project-dist', 'index.html');
-createIndex(templatePath, indexPath);
-
-const styleFolder = path.join(__dirname, 'styles');
-const styleDstFile = path.join(__dirname, 'project-dist', 'style.css');
-mergeStyles(styleFolder, styleDstFile);
