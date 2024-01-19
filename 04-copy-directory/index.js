@@ -8,13 +8,14 @@ fs.access(dstFolderPath, fs.constants.F_OK, (err) => {
   if (err) {
     fs.mkdir(dstFolderPath, { recursive: true }, (err) => {
       if (err) throw err;
+      else {
+        fs.readdir(srcFolderPath, (err, files) => {
+          if (err) console.log(err);
+          else copyFiles(srcFolderPath, dstFolderPath, files);
+        });
+      }
     });
   }
-});
-
-fs.readdir(srcFolderPath, (err, files) => {
-  if (err) console.log(err);
-  else copyFiles(srcFolderPath, dstFolderPath, files);
 });
 
 function copyFiles(srcFolderPath, dstFolderPath, files) {
