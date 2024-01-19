@@ -78,9 +78,7 @@ function mergeStyles(styleFolder, styleDstFile) {
         .filter((file) => path.extname(file.toLowerCase()) === '.css')
         .map((file) => path.join(styleFolder, file));
       mergeStylesByOrden(fullPathFiles, styleDstFile)
-        .then(() =>
-          console.log(`+ CSS style has been merged with files: ${files}`),
-        )
+        .then(() => console.log(`+ CSS style has been merged`))
         .catch(console.error);
     }
   });
