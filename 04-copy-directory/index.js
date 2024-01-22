@@ -6,28 +6,37 @@ const dstFolderPath = path.join(__dirname, 'files-copy');
 
 fs.access(dstFolderPath, fs.constants.F_OK, (err) => {
   if (err) {
-    fs.mkdir(dstFolderPath, { recursive: true }, (err) => {
+    copyFiles(srcFolderPath, dstFolderPath);
+  } else {
+    fs.rm(dstFolderPath, { recursive: true, force: true }, (err) => {
       if (err) throw err;
       else {
-        fs.readdir(srcFolderPath, (err, files) => {
-          if (err) console.log(err);
-          else copyFiles(srcFolderPath, dstFolderPath, files);
-        });
+        copyFiles(srcFolderPath, dstFolderPath);
       }
     });
   }
 });
 
-function copyFiles(srcFolderPath, dstFolderPath, files) {
-  files.forEach((file) => {
-    fs.copyFile(
-      path.join(srcFolderPath, file),
-      path.join(dstFolderPath, file),
-      (err) => {
-        if (err) {
-          console.log(err);
+function copyFiles(srcFolderPath, dstFolderPath) {
+  fs.mkdir(dstFolderPath, { recursive: true }, (err) => {
+    if (err) throw err;
+    else {
+      fs.readdir(srcFolderPath, (err, files) => {
+        if (err) console.log(err);
+        else {
+          files.forEach((file) => {
+            fs.copyFile(
+              path.join(srcFolderPath, file),
+              path.join(dstFolderPath, file),
+              (err) => {
+                if (err) {
+                  console.log(err);
+                }
+              },
+            );
+          });
         }
-      },
-    );
+      });
+    }
   });
 }

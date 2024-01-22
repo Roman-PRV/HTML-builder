@@ -78,7 +78,7 @@ function mergeStyles(styleFolder, styleDstFile) {
         .filter((file) => path.extname(file.toLowerCase()) === '.css')
         .map((file) => path.join(styleFolder, file));
       mergeStylesByOrden(fullPathFiles, styleDstFile)
-        .then(() => console.log(`+ CSS style has been merged`))
+        .then(() => console.log('+ CSS style has been merged'))
         .catch(console.error);
     }
   });
@@ -98,6 +98,7 @@ function findTags(template) {
 }
 
 // замінює теги по черзі, щоб уникнути стану перегонів
+// І навіщо я це зробив, тут же ж нема перегонві?
 async function replaceTagsByOrden(tags, template, outputFile) {
   for (let i = 0; i < tags.length; i++) {
     const tag = path.join(__dirname, 'components', tags[i] + '.html');

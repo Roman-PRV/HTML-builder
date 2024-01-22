@@ -21,7 +21,7 @@ fs.readdir(srcFolderPath, (err, files) => {
       .filter((file) => path.extname(file.toLowerCase()) === '.css')
       .map((file) => path.join(srcFolderPath, file));
     mergeStylesByOrden(fullPathFiles, styleDstFile)
-      .then(() => console.log(`+ CSS style has been merged`))
+      .then(() => console.log('+ CSS style has been merged'))
       .catch(console.error);
   }
 });
